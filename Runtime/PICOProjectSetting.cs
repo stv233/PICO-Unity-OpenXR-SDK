@@ -25,13 +25,14 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         public bool MRSafeguard;
         public bool isHandTracking;
         public bool isEyeTrackingCalibration;
+        public bool highFrequencyHand;
         public SystemDisplayFrequency displayFrequency;
         public SecureContentFlag contentProtectFlags ;
         public  bool foveationEnable;
         public  FoveationFeature.FoveatedRenderingMode foveatedRenderingMode;
         public  FoveationFeature.FoveatedRenderingLevel foveatedRenderingLevel;
         public bool isSubsampledEnabled;
-
+        public HandTrackingSupport handTrackingSupportType;
         [SerializeField, Tooltip("Set the system splash screen picture in PNG format.")]
         public Texture2D systemSplashScreen;
         private string splashPath = string.Empty;
@@ -47,8 +48,10 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                 projectConfig.contentProtectFlags = SecureContentFlag.SECURE_CONTENT_OFF;
                 projectConfig.isEyeTracking = false;
                 projectConfig.isEyeTrackingCalibration = false;
+                projectConfig.handTrackingSupportType = HandTrackingSupport.ControllersAndHands;
                 projectConfig.isHandTracking = false;
                 projectConfig.MRSafeguard = false;
+                projectConfig.highFrequencyHand = false;
                 projectConfig.displayFrequency = SystemDisplayFrequency.Default;
                 projectConfig.foveationEnable = false;
                 projectConfig.foveatedRenderingMode = FoveationFeature.FoveatedRenderingMode.FixedFoveatedRendering;

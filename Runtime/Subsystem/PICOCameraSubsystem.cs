@@ -1,4 +1,4 @@
-﻿#if AR_FOUNDATION
+﻿#if AR_FOUNDATION_5||AR_FOUNDATION_6
 using UnityEngine;
 using UnityEngine.XR.ARSubsystems;
 
@@ -10,7 +10,12 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {
-            var cameraSubsystemCinfo = new XRCameraSubsystemCinfo
+            var cameraSubsystemCinfo = 
+#if AR_FOUNDATION_5
+                new XRCameraSubsystemCinfo
+#elif AR_FOUNDATION_6
+            new XRCameraSubsystemDescriptor.Cinfo
+#endif
             {
                 id = k_SubsystemId,
                 providerType = typeof(PICOOpenXRProvider),
@@ -32,10 +37,11 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                 supportsCameraGrain = false,
             };
 
-            if (!XRCameraSubsystem.Register(cameraSubsystemCinfo))
-            {
-                PLog.e($"Failed to register the {k_SubsystemId} subsystem.");
-            }
+#if AR_FOUNDATION_5
+            XRCameraSubsystem.Register(cameraSubsystemCinfo);
+#elif AR_FOUNDATION_6
+            XRCameraSubsystemDescriptor.Register(cameraSubsystemCinfo);
+#endif
         }
 
         class PICOOpenXRProvider : Provider

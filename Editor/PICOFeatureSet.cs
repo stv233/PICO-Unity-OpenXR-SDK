@@ -17,6 +17,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             PICOSpatialMesh.featureId,
             PICOSceneCapture.featureId,
             PICOSpatialAnchor.featureId,
+            BodyTrackingFeature.featureId,
         },
         UiName = "PICO XR",
         Description = "Feature set for using PICO XR Features",

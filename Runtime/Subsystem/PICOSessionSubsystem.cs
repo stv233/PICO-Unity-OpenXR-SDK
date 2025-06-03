@@ -1,4 +1,4 @@
-#if AR_FOUNDATION
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
 using Unity.XR.OpenXR.Features.PICOSupport;
 using Unity.XR.PXR;
 using UnityEngine;
@@ -100,7 +100,11 @@ public class PICOSessionSubsystem : XRSessionSubsystem
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void RegisterDescriptor()
     {
+#if AR_FOUNDATION_6
+        XRSessionSubsystemDescriptor.Register(new XRSessionSubsystemDescriptor.Cinfo
+#elif AR_FOUNDATION_5
         XRSessionSubsystemDescriptor.RegisterDescriptor(new XRSessionSubsystemDescriptor.Cinfo
+#endif
         {
             id = k_SubsystemId,
             providerType = typeof(SessionProvider),

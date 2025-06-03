@@ -17,7 +17,7 @@ using UnityEditor;
 using UnityEditor.XR.OpenXR.Features;
 #endif
 
-#if AR_FOUNDATION
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
 using UnityEngine.XR.ARSubsystems;
 #endif
 
@@ -42,7 +42,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     public class PICOFeature : OpenXRFeature
     {
         public const string PicoExtensionList = "";
-        public const string SDKVersion = "1.3.3";
+        public const string SDKVersion = "1.4.1";
         public static Action<bool> onAppFocusedAction;
         public bool isPicoSupport = false;
        

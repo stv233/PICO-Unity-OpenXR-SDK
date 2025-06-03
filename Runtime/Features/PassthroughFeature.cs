@@ -6,7 +6,7 @@ using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEngine;
 
-#if AR_FOUNDATION
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
 using UnityEngine.XR.ARSubsystems;
 #endif
 using UnityEngine.XR.OpenXR;
@@ -415,8 +415,8 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         }
 #endif
         
-#if AR_FOUNDATION
-        public bool isCameraSubsystem=true;
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
+        public bool isCameraSubsystem=false;
         static List<XRCameraSubsystemDescriptor> s_CameraDescriptors = new List<XRCameraSubsystemDescriptor>();
         protected override void OnSubsystemCreate()
         {
@@ -457,7 +457,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             base.OnSessionStateChange(oldState, newState);
             if (newState == 1)
             {
-#if AR_FOUNDATION
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
                 if (isCameraSubsystem)
                 {
                     StopSubsystem<XRCameraSubsystem>();
@@ -476,7 +476,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             }
             else if (newState == 5)
             {
-#if AR_FOUNDATION
+#if AR_FOUNDATION_5||AR_FOUNDATION_6
                 if (isCameraSubsystem)
                 {
                     StartSubsystem<XRCameraSubsystem>();

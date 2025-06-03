@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Unity.XR.PXR;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
+#if UNITY_XR_HAND
+using UnityEngine.XR.Hands.OpenXR;
+#endif
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 
@@ -162,44 +167,31 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             {
                 CreateOrUpdateAndroidMetaData("pvr.app.type", "vr");
                 CreateOrUpdateAndroidMetaData("pvr.sdk.version", "Unity OpenXR "+PICOFeature.SDKVersion);
-                CreateOrUpdateAndroidMetaData("pxr.sdk.version_code", "5800");
-
-                if (PICOProjectSetting.GetProjectConfig().isHandTracking)
-                {
-                    CreateOrUpdateAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
-                    CreateOrUpdateAndroidMetaData("handtracking", "1");
-                }
-                else
-                {
-                    DeleteAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
-                    DeleteAndroidMetaData("handtracking");
-                }
-                
-                if (PICOProjectSetting.GetProjectConfig().isEyeTracking)
-                {
-                    CreateOrUpdateAndroidPermissionData("com.picovr.permission.EYE_TRACKING");
-                    CreateOrUpdateAndroidMetaData("picovr.software.eye_tracking", "1");
-                    CreateOrUpdateAndroidMetaData("eyetracking_calibration", PICOProjectSetting.GetProjectConfig().isEyeTrackingCalibration ? "true" : "false");
-                }
-                else
-                {
-                    DeleteAndroidPermissionData("com.picovr.permission.EYE_TRACKING");
-                    DeleteAndroidMetaData("picovr.software.eye_tracking");
-                    DeleteAndroidMetaData("eyetracking_calibration");
-                }
-                
+                CreateOrUpdateAndroidMetaData("pxr.sdk.version_code", "5110");
                 var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
                 bool mrPermission = false;
-            
+
                 foreach (var feature in settings.GetFeatures<OpenXRFeature>())
                 {
+                    if (feature is BodyTrackingFeature)
+                    {
+                        if (feature.enabled)
+                        {
+                            CreateOrUpdateAndroidMetaData("PICO.swift.feature", "1");
 
+                            mrPermission = true;
+                        }
+                        else
+                        {
+                            DeleteAndroidMetaData("enable_scene_anchor");
+                        }
+                    }
                     if (feature is PICOSceneCapture)
                     {
                         if (feature.enabled)
                         {
                             CreateOrUpdateAndroidMetaData("enable_scene_anchor", "1");
-                         
+
                             mrPermission = true;
                         }
                         else
@@ -233,8 +225,66 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                             DeleteAndroidMetaData("enable_mesh_anchor");
                         }
                     }
+#if UNITY_XR_HAND
+                    if (feature is HandTracking)
+                    {
+                        if (feature.enabled)
+                        {
+                            if (PICOProjectSetting.GetProjectConfig().isHandTracking)
+                            {
+                                CreateOrUpdateAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
+                                CreateOrUpdateAndroidMetaData("handtracking", "1");
+                                if (PICOProjectSetting.GetProjectConfig().handTrackingSupportType == HandTrackingSupport.HandsOnly)
+                                {
+                                    CreateOrUpdateAndroidMetaData("handtracking", "1");
+                                    DeleteAndroidMetaData("controller");
 
+                                }
+                                else
+                                {
+                                    CreateOrUpdateAndroidMetaData("handtracking", "1");
+                                    CreateOrUpdateAndroidMetaData("controller", "1");
+                                }
+                                CreateOrUpdateAndroidMetaData("Hand_Tracking_HighFrequency", PICOProjectSetting.GetProjectConfig().highFrequencyHand ? "1" : "0");
+                            }
+                            else
+                            {
+                                DeleteAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
+                                DeleteAndroidMetaData("handtracking");
+                                DeleteAndroidMetaData("Hand_Tracking_HighFrequency");
+                                CreateOrUpdateAndroidMetaData("controller", "1");
+                            }
+                        }
+                        else
+                        {
+                            DeleteAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
+                            DeleteAndroidMetaData("handtracking");
+                            DeleteAndroidMetaData("Hand_Tracking_HighFrequency");
+                            CreateOrUpdateAndroidMetaData("controller", "1");
+                        }
+                    }
                 }
+#else
+                }
+
+                DeleteAndroidPermissionData("com.picovr.permission.HAND_TRACKING");
+                DeleteAndroidMetaData("handtracking");
+                CreateOrUpdateAndroidMetaData("controller", "1");
+#endif
+                if (PICOProjectSetting.GetProjectConfig().isEyeTracking)
+                {
+                    CreateOrUpdateAndroidPermissionData("com.picovr.permission.EYE_TRACKING");
+                    CreateOrUpdateAndroidMetaData("picovr.software.eye_tracking", "1");
+                    CreateOrUpdateAndroidMetaData("eyetracking_calibration", PICOProjectSetting.GetProjectConfig().isEyeTrackingCalibration ? "true" : "false");
+                }
+                else
+                {
+                    DeleteAndroidPermissionData("com.picovr.permission.EYE_TRACKING");
+                    DeleteAndroidMetaData("picovr.software.eye_tracking");
+                    DeleteAndroidMetaData("eyetracking_calibration");
+                }
+                
+            
                 if (PICOProjectSetting.GetProjectConfig().MRSafeguard)
                 {
                     CreateOrUpdateAndroidMetaData("enable_mr_safeguard", PICOProjectSetting.GetProjectConfig().MRSafeguard ? "1" : "0");

@@ -111,7 +111,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     public enum XrBodyJointSetBD
     {
         XR_BODY_JOINT_SET_DEFAULT_BD = 0, //default joint set XR_BODY_JOINT_SET_BODY_STAR_WITHOUT_ARM_BD
-        XR_BODY_JOINT_SET_BODY_STAR_WITHOUT_ARM_BD = 1,
+        XR_BODY_JOINT_SET_BODY_START_WITHOUT_ARM_BD = 1,
         XR_BODY_JOINT_SET_BODY_FULL_STAR_BD = 2
     }
 

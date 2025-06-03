@@ -113,7 +113,11 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             if (!isTrackingOriginMode)
             {
                 XRInputSubsystem subsystem = null;
+#if UNITY_6000
+                SubsystemManager.GetSubsystems(s_InputSubsystems);
+#else
                 SubsystemManager.GetInstances(s_InputSubsystems);
+#endif
                 if (s_InputSubsystems.Count > 0)
                 {
                     subsystem = s_InputSubsystems[0];

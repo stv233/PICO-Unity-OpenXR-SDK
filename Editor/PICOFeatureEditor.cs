@@ -16,7 +16,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         {
             PICOFeature picoFeature = (PICOFeature)target;
             PICOProjectSetting projectConfig = PICOProjectSetting.GetProjectConfig();
-            EditorGUIUtility.labelWidth = 180;
+            EditorGUIUtility.labelWidth = 200;
             //eye tracking
             GUIStyle firstLevelStyle = new GUIStyle(GUI.skin.label);
             firstLevelStyle.alignment = TextAnchor.UpperLeft;
@@ -35,6 +35,18 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                 EditorGUILayout.EndVertical();
             }
             projectConfig.isHandTracking = EditorGUILayout.Toggle("Hand Tracking", projectConfig.isHandTracking);
+            if (projectConfig.isHandTracking)
+            {
+                //hand tracking Support
+                var handSupport = new GUIContent();
+                handSupport.text = "Hand Tracking Support";
+                projectConfig.handTrackingSupportType =(HandTrackingSupport)EditorGUILayout.EnumPopup(handSupport, projectConfig.handTrackingSupportType); 
+                //high frequency tracking
+                var highfrequencytracking = new GUIContent();
+                highfrequencytracking.text = "High Frequency Tracking(60Hz)";
+                highfrequencytracking.tooltip = "If turned on, hand tracking will run at a higher tracking frequency, which will improve the smoothness of hand tracking, but the power consumption will increase.";
+                projectConfig.highFrequencyHand = EditorGUILayout.Toggle(highfrequencytracking, projectConfig.highFrequencyHand);
+            }
             
             var displayFrequencyContent = new GUIContent();
             displayFrequencyContent.text = "Display Refresh Rates";
@@ -70,8 +82,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             }
             GUILayout.BeginHorizontal();
             guiContent.text = "System Splash Screen";
-            guiContent.tooltip = "";
-            EditorGUILayout.LabelField(guiContent, GUILayout.Width(165));
+            EditorGUILayout.LabelField(guiContent, GUILayout.Width(185));
             projectConfig.systemSplashScreen = (Texture2D)EditorGUILayout.ObjectField(projectConfig.systemSplashScreen, typeof(Texture2D), true);
             GUILayout.EndHorizontal();
 
