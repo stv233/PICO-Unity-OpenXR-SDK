@@ -11,6 +11,7 @@ PICO Technology Co., Ltd.
 *******************************************************************************/
 
 using System.IO;
+using Unity.XR.PXR;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,8 +22,8 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     {
         public bool useContentProtect;
         public bool isEyeTracking;
+        public bool MRSafeguard;
         public bool isHandTracking;
-        public bool isCameraSubsystem;
         public bool isEyeTrackingCalibration;
         public SystemDisplayFrequency displayFrequency;
         public SecureContentFlag contentProtectFlags ;
@@ -45,9 +46,9 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                 projectConfig.useContentProtect = false;
                 projectConfig.contentProtectFlags = SecureContentFlag.SECURE_CONTENT_OFF;
                 projectConfig.isEyeTracking = false;
-                projectConfig.isCameraSubsystem = false;
                 projectConfig.isEyeTrackingCalibration = false;
                 projectConfig.isHandTracking = false;
+                projectConfig.MRSafeguard = false;
                 projectConfig.displayFrequency = SystemDisplayFrequency.Default;
                 projectConfig.foveationEnable = false;
                 projectConfig.foveatedRenderingMode = FoveationFeature.FoveatedRenderingMode.FixedFoveatedRendering;

@@ -34,7 +34,7 @@ public class PXR_ControllerPower : MonoBehaviour
     public bool controllerL=false;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (GetComponent<MeshRenderer>() != null)
         {
@@ -45,15 +45,20 @@ public class PXR_ControllerPower : MonoBehaviour
         {
             powerMaterial = GetComponent<SkinnedMeshRenderer>().material;
         }
+        
+        
+        // Vector3 a=Vector3.zero;
+        // InputDevices.GetDeviceAtXRNode(XRNode.CenterEye).TryGetFeatureValue(EyeTrackingUsages.gazePosition, out a);
     }
 
-    // Update is called once per frame
-    void Update()
+   
+    void OnEnable()
     {
-        interval -= Time.deltaTime;
-        if (interval > 0) return; 
-        interval = 2f;
+        RefreshPower();
+    }
 
+    private void RefreshPower()
+    {
         var curBattery = 0f;
         if (controllerL)
         {
@@ -63,7 +68,6 @@ public class PXR_ControllerPower : MonoBehaviour
         {
             InputDevices.GetDeviceAtXRNode(XRNode.RightHand).TryGetFeatureValue(CommonUsages.batteryLevel, out curBattery);
         }
-        
         switch ((int)curBattery)
         {
             case 1:
@@ -109,5 +113,16 @@ public class PXR_ControllerPower : MonoBehaviour
 
                 break;
         }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        interval -= Time.deltaTime;
+        if (interval > 0) 
+            return;
+        interval = 2f;
+
+        RefreshPower();
     }
 }

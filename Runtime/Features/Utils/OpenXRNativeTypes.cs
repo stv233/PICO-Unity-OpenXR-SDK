@@ -83,7 +83,11 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             width = value.x;
             height = value.y;
         }
-
+        
+        public Vector2 ToVector2()
+        {
+            return new Vector2() { x = width, y = height };
+        }
         public override string ToString()
         {
             return $"{nameof(width)}: {width}, {nameof(height)}: {height}";
@@ -108,8 +112,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     {
         XR_BODY_JOINT_SET_DEFAULT_BD = 0, //default joint set XR_BODY_JOINT_SET_BODY_STAR_WITHOUT_ARM_BD
         XR_BODY_JOINT_SET_BODY_STAR_WITHOUT_ARM_BD = 1,
-        XR_BODY_JOINT_SET_BODY_FULL_STAR_BD = 2,
-        XR_BODY_JOINT_SET_MAX_ENUM_BD = 0x7FFFFFFF
+        XR_BODY_JOINT_SET_BODY_FULL_STAR_BD = 2
     }
 
     public struct xrPose
@@ -139,6 +142,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     public enum SecureContentFlag
     {
         SECURE_CONTENT_OFF = 0,
+        SECURE_CONTENT_EXCLUDE_LAYER = 1,
         SECURE_CONTENT_REPLACE_LAYER = 2
     }
 
@@ -523,6 +527,13 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         public float x;
         public float y;
         public float z;
+    };
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XrExtent3Df
+    {
+        public float width;
+        public float height;
+        public float depth;
     };
 
     [StructLayout(LayoutKind.Sequential)]

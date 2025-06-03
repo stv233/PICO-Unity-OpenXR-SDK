@@ -102,6 +102,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// </summary>
             [Preserve, InputControl(usage = "Trigger")]
             public AxisControl trigger { get; private set; }
+            
+            [Preserve, InputControl(usage = "BatteryLevel")]
+            public AxisControl batteryLevel { get; private set; }
 
             /// <summary>
             /// A [ButtonControl](xref:UnityEngine.InputSystem.Controls.ButtonControl) that represents the <see cref="PICO4UltraControllerProfile.triggerClick"/> OpenXR binding.
@@ -190,6 +193,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 trigger = GetChildControl<AxisControl>("trigger");
                 triggerPressed = GetChildControl<ButtonControl>("triggerPressed");
                 triggerTouched = GetChildControl<ButtonControl>("triggerTouched");
+                batteryLevel = GetChildControl<AxisControl>("BatteryLevel");
                 grip = GetChildControl<AxisControl>("grip");
                 gripPressed = GetChildControl<ButtonControl>("gripPressed");
                 menu = GetChildControl<ButtonControl>("menu");
@@ -306,8 +310,10 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// Constant for a haptic interaction binding '.../output/haptic' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string haptic = "/output/haptic";
+        
+        public const string batteryLevel = "/input/battery/value";
 
-        private const string kDeviceLocalizedName = "PICO4U ltra Touch Controller OpenXR";
+        private const string kDeviceLocalizedName = "PICO4 Ultra Touch Controller OpenXR";
 
         /// <summary>
         /// The OpenXR Extension string. This extension defines the interaction profile for PICO Neo3 and PICO 4 Controllers.
@@ -683,6 +689,25 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             new ActionBinding()
                             {
                                 interactionPath = aim,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    // Trigger
+                    new ActionConfig()
+                    {
+                        name = "batteryLevel",
+                        localizedName = "BatteryLevel",
+                        type = ActionType.Axis1D,
+                        usages = new List<string>()
+                        {
+                            "BatteryLevel"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = batteryLevel,
                                 interactionProfileName = profile,
                             }
                         }

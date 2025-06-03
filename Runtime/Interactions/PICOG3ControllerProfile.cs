@@ -143,7 +143,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// </summary>
             [Preserve, InputControl(offset = 108, alias = "pointerOrientation")]
             public QuaternionControl pointerRotation { get; private set; }
-  
+          
+            [Preserve, InputControl(usage = "BatteryLevel")]
+            public AxisControl batteryLevel { get; private set; }
             
             /// <summary>
             /// Internal call used to assign controls to the the correct element.
@@ -168,6 +170,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 deviceRotation = GetChildControl<QuaternionControl>("deviceRotation");
                 pointerPosition = GetChildControl<Vector3Control>("pointerPosition");
                 pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
+                batteryLevel = GetChildControl<AxisControl>("BatteryLevel");
             }
         }
         
@@ -223,7 +226,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// Constant for a pose interaction binding '.../input/grip/pose' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string grip = "/input/grip/pose";
-
+  
+        public const string batteryLevel = "/input/battery/value";
 
         private const string kDeviceLocalizedName = "PICOG3 Touch Controller OpenXR";
 
@@ -436,6 +440,24 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             new ActionBinding()
                             {
                                 interactionPath = grip,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    new ActionConfig()
+                    {
+                        name = "batteryLevel",
+                        localizedName = "BatteryLevel",
+                        type = ActionType.Axis1D,
+                        usages = new List<string>()
+                        {
+                            "BatteryLevel"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = batteryLevel,
                                 interactionProfileName = profile,
                             }
                         }

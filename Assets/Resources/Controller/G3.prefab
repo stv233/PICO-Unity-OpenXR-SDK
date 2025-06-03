@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3592357975929350017}
-  - component: {fileID: 6640287446300002019}
+  - component: {fileID: 1534429355808917736}
   m_Layer: 0
   m_Name: G3
   m_TagString: Untagged
@@ -34,7 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6640287446300002019
+--- !u!114 &1534429355808917736
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,7 +43,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3592357975929350142}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13f010f629084af4fb20825efaab5fdd, type: 3}
+  m_Script: {fileID: 11500000, guid: e4ee62d8e7a57c8458f969922f7a06a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   triggerTran: {fileID: 6165355476879913558}
@@ -271,4 +271,4 @@ MonoBehaviour:
   power3: {fileID: 2800000, guid: fa81cec4ef495964295e19ee18428ddf, type: 3}
   power4: {fileID: 2800000, guid: 8d99b31c7444c73479bb9169420ddad9, type: 3}
   power5: {fileID: 2800000, guid: 7dfa52c3c61f61542881145b740c7635, type: 3}
-  hand: 1
+  controllerL: 0

@@ -7,6 +7,7 @@ using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using AOT;
+using Unity.XR.PXR;
 
 
 #if UNITY_EDITOR
@@ -41,21 +42,17 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
     public class PICOFeature : OpenXRFeature
     {
         public const string PicoExtensionList = "";
-        public const string SDKVersion = "1.2.1";
+        public const string SDKVersion = "1.3.3";
         public static Action<bool> onAppFocusedAction;
-        public bool isCameraSubsystem;
-#if AR_FOUNDATION
-        static List<XRHumanBodySubsystemDescriptor> s_HumanBodyDescriptors = new List<XRHumanBodySubsystemDescriptor>();
-        static List<XRFaceSubsystemDescriptor> s_FaceDescriptors = new List<XRFaceSubsystemDescriptor>();
-        static List<XRCameraSubsystemDescriptor> s_CameraDescriptors = new List<XRCameraSubsystemDescriptor>();
-#endif
+        public bool isPicoSupport = false;
+       
+
 
         /// <summary>
         /// The feature id string. This is used to give the feature a well known id for reference.
         /// </summary>
         public const string featureId = "com.unity.openxr.feature.pico";
-        private static ulong xrSession = 0ul;
-
+     
 #if UNITY_EDITOR
         static AddRequest request;
         protected override void GetValidationChecks(List<ValidationRule> rules, BuildTargetGroup targetGroup)
@@ -143,126 +140,14 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         }
 
 #endif
-
-        protected override void OnSubsystemCreate()
-        {
-            base.OnSubsystemCreate();
-#if AR_FOUNDATION
-            // PICOProjectSetting projectConfig = PICOProjectSetting.GetProjectConfig();
+                                               
         
-            isCameraSubsystem = isCameraSubsystem && OpenXRRuntime.IsExtensionEnabled("XR_FB_passthrough");
-            if (isCameraSubsystem)
-            {
-                CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(
-                    s_CameraDescriptors,
-                    PICOCameraSubsystem.k_SubsystemId);
-            }
-#endif
-        }
+      
+       
 
-        protected override void OnSubsystemStart()
-        {
-#if AR_FOUNDATION
-            if (isCameraSubsystem)
-            {
-                StartSubsystem<XRCameraSubsystem>();
-            }
-#endif
-        }
+      
 
-        protected override void OnSubsystemStop()
-        {
-#if AR_FOUNDATION
-            if (isCameraSubsystem)
-            {
-                StopSubsystem<XRCameraSubsystem>();
-            }
-#endif
-        }
 
-        protected override void OnSubsystemDestroy()
-        {
-#if AR_FOUNDATION
-            if (isCameraSubsystem)
-            {
-                DestroySubsystem<XRCameraSubsystem>();
-            }
-#endif
-        }
-        protected override bool OnInstanceCreate(ulong xrInstance)
-        {
-            OpenXRExtensions.isPicoSupport = true;
-            return base.OnInstanceCreate(xrInstance);
-        }
-
-        protected override void OnSessionStateChange(int oldState, int newState)
-        {
-            base.OnSessionStateChange(oldState, newState);
-            if (onAppFocusedAction != null)
-            {
-                onAppFocusedAction(newState == 5);
-            }
-            if (newState == 1)
-            {
-#if AR_FOUNDATION
-                if (isCameraSubsystem)
-                {
-                    StopSubsystem<XRCameraSubsystem>();
-                }
-#endif
-            }
-            else if (newState == 5)
-            {
-#if AR_FOUNDATION
-                if (isCameraSubsystem)
-                {
-                    StartSubsystem<XRCameraSubsystem>();
-                }
-#endif
-            }
-        }
-        protected override void OnSessionCreate(ulong xrSessionId)
-        {
-            xrSession = xrSessionId;
-            base.OnSessionCreate(xrSessionId);
-            //log level
-            float logLevel = 0;
-            if (GetLogLevel(xrSession, ref logLevel))
-            {
-                PLog.logLevel = (PLog.LogLevel)logLevel;
-            }
-            PLog.i($"OpenXR SDK Version:{SDKVersion}, logLevel:{(int)PLog.logLevel}");
-            LogLevelCallback(OnMessage);
-        }
-
-        private delegate void OnChangeDelegate(int level);
-        [MonoPInvokeCallback(typeof(OnChangeDelegate))]
-        private static void OnMessage(int level)
-        {
-            if (level > 0)
-            {
-                PLog.logLevel = (PLog.LogLevel)level;
-            }
-
-            PLog.i($"OpenXR level:{level}, logLevel:{(int)PLog.logLevel}");
-        }
-
-        /// <inheritdoc/>
-        protected override void OnSessionDestroy(ulong xrSessionId)
-        {
-            base.OnSessionDestroy(xrSessionId);
-            xrSession = 0ul;
-        }
-        
-
-        internal delegate void ReceiveLogLevelChangeDelegate(int level);
-
-        const string extLib = "openxr_pico";
-        [DllImport(extLib, EntryPoint = "PICO_GetLogLevel", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool GetLogLevel(ulong xrSpace, ref float ret);
-        
-        [DllImport(extLib, EntryPoint = "PICO_LogLevelCallback")]
-        private static extern void LogLevelCallback(ReceiveLogLevelChangeDelegate callback);
 
     }
 }

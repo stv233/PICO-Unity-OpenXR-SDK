@@ -12,7 +12,6 @@ namespace Unity.XR.PXR
         public bool controllerL=false;
 
         private Animator mAnimator;
-        private InputDevice mInputDevice;
    
 
         private readonly float animation_time = 0.05f;
@@ -94,7 +93,6 @@ namespace Unity.XR.PXR
         {
             per_animation_step = 1.0f / animation_time;
             mAnimator = GetComponent<Animator>();
-            mInputDevice = InputDevices.GetDeviceAtXRNode(controllerL  ? XRNode.LeftHand : XRNode.RightHand);
 
             if (mAnimator != null)
             {
@@ -123,26 +121,26 @@ namespace Unity.XR.PXR
         // Update is called once per frame
         void Update()
         {
-            mInputDevice.TryGetFeatureValue(CommonUsages.primaryButton, out X_A_Press);
-            mInputDevice.TryGetFeatureValue(CommonUsages.primaryTouch, out X_A_Touch);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primaryButton, out X_A_Press);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primaryTouch, out X_A_Touch);
 
-            mInputDevice.TryGetFeatureValue(CommonUsages.secondaryButton, out Y_B_Press);
-            mInputDevice.TryGetFeatureValue(CommonUsages.secondaryTouch, out Y_B_Touch);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.secondaryButton, out Y_B_Press);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.secondaryTouch, out Y_B_Touch);
 
-            mInputDevice.TryGetFeatureValue(CommonUsages.trigger, out trigger_Value);
-            mInputDevice.TryGetFeatureValue(CommonUsages.triggerButton, out trigger_Touch);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.trigger, out trigger_Value);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.triggerButton, out trigger_Touch);
 
-            mInputDevice.TryGetFeatureValue(CommonUsages.grip, out grip_Value);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.grip, out grip_Value);
 
-            mInputDevice.TryGetFeatureValue(CommonUsages.primary2DAxis, out primary2DAxisVec2);
-            mInputDevice.TryGetFeatureValue(CommonUsages.primary2DAxisTouch, out primary2DAxis_Touch);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primary2DAxis, out primary2DAxisVec2);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primary2DAxisTouch, out primary2DAxis_Touch);
             if (!primary2DAxis_Touch)
             {
                 if (primary2DAxisVec2 != Vector2.zero)
                     primary2DAxis_Touch = true;
             }
             
-            mInputDevice.TryGetFeatureValue(CommonUsages.menuButton, out menu_Press);
+            InputDevices.GetDeviceAtXRNode(controllerL ? XRNode.LeftHand : XRNode.RightHand).TryGetFeatureValue(CommonUsages.menuButton, out menu_Press);
             
             if (Y_B_Touch && primary2DAxisVec2 == Vector2.zero)
             {

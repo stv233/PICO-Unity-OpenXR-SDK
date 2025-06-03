@@ -6,7 +6,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
 {
     public class PICOCameraSubsystem: XRCameraSubsystem
     {
-        internal const string k_SubsystemId = "PICO-Camera";
+        internal const string k_SubsystemId = "PICOCameraSubsystem";
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void RegisterDescriptor()
         {

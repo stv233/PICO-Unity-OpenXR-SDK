@@ -2,8 +2,11 @@
 using System.IO;
 using System.Text;
 using System.Xml;
+using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEditor.XR.OpenXR.Features;
+using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
 
 
 namespace Unity.XR.OpenXR.Features.PICOSupport
@@ -184,8 +187,72 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
                     DeleteAndroidMetaData("picovr.software.eye_tracking");
                     DeleteAndroidMetaData("eyetracking_calibration");
                 }
-
                 
+                var settings = OpenXRSettings.GetSettingsForBuildTargetGroup(BuildTargetGroup.Android);
+                bool mrPermission = false;
+            
+                foreach (var feature in settings.GetFeatures<OpenXRFeature>())
+                {
+
+                    if (feature is PICOSceneCapture)
+                    {
+                        if (feature.enabled)
+                        {
+                            CreateOrUpdateAndroidMetaData("enable_scene_anchor", "1");
+                         
+                            mrPermission = true;
+                        }
+                        else
+                        {
+                            DeleteAndroidMetaData("enable_scene_anchor");
+                        }
+                    }
+
+                    if (feature is PICOSpatialAnchor)
+                    {
+                        if (feature.enabled)
+                        {
+                            CreateOrUpdateAndroidMetaData("enable_spatial_anchor", "1");
+                            mrPermission = true;
+                        }
+                        else
+                        {
+                            DeleteAndroidMetaData("enable_spatial_anchor");
+                        }
+                    }
+
+                    if (feature is PICOSpatialMesh)
+                    {
+                        if (feature.enabled)
+                        {
+                            CreateOrUpdateAndroidMetaData("enable_mesh_anchor", "1");
+                            mrPermission = true;
+                        }
+                        else
+                        {
+                            DeleteAndroidMetaData("enable_mesh_anchor");
+                        }
+                    }
+
+                }
+                if (PICOProjectSetting.GetProjectConfig().MRSafeguard)
+                {
+                    CreateOrUpdateAndroidMetaData("enable_mr_safeguard", PICOProjectSetting.GetProjectConfig().MRSafeguard ? "1" : "0");
+                }
+                else
+                {
+                    DeleteAndroidMetaData("enable_mr_safeguard");
+                }
+
+                if (mrPermission)
+                {
+                    CreateOrUpdateAndroidPermissionData("com.picovr.permission.SPATIAL_DATA");
+                }
+                else
+                {
+                    DeleteAndroidPermissionData("com.picovr.permission.SPATIAL_DATA");
+                }
+
                 CreateOrUpdateAndroidMetaData("pvr.app.splash", PICOProjectSetting.GetProjectConfig().GetSystemSplashScreen(path));
             }
         }

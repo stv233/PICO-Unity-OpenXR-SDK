@@ -24,7 +24,6 @@ namespace Unity.XR.PXR
         public Transform gripTran;
         public Transform triggerTran;
         public bool controllerL=false;
-        private InputDevice currentController;
         private Vector2 axis2D = Vector2.zero;
         private bool primaryButton;
         private bool secondaryButton;
@@ -43,9 +42,6 @@ namespace Unity.XR.PXR
         void Start()
         {
             controllerAnimator = GetComponent<Animator>();
-            currentController = InputDevices.GetDeviceAtXRNode(controllerL
-                ? XRNode.LeftHand
-                : XRNode.RightHand);
             originalGrip = gripTran.localEulerAngles;
             originalJoystick = primary2DAxisTran.localEulerAngles;
             originalTrigger = triggerTran.localEulerAngles;
@@ -53,12 +49,24 @@ namespace Unity.XR.PXR
 
         void Update()
         {
-            currentController.TryGetFeatureValue(CommonUsages.primary2DAxis, out axis2D);
-            currentController.TryGetFeatureValue(CommonUsages.grip, out grip);
-            currentController.TryGetFeatureValue(CommonUsages.trigger, out trigger);
-            currentController.TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton);
-            currentController.TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
-            currentController.TryGetFeatureValue(CommonUsages.menuButton, out menuButton);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primary2DAxis, out axis2D);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.grip, out grip);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.trigger, out trigger);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.primaryButton, out primaryButton);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.secondaryButton, out secondaryButton);
+            InputDevices.GetDeviceAtXRNode(controllerL
+                ? XRNode.LeftHand
+                : XRNode.RightHand).TryGetFeatureValue(CommonUsages.menuButton, out menuButton);
 
             float x = Mathf.Clamp(axis2D.x * 10f, -10f, 10f);
             float z = Mathf.Clamp(axis2D.y * 10f, -10f, 10f);

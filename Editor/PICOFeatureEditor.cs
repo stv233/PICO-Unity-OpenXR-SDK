@@ -1,3 +1,4 @@
+using Unity.XR.PXR;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,8 +36,6 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             }
             projectConfig.isHandTracking = EditorGUILayout.Toggle("Hand Tracking", projectConfig.isHandTracking);
             
-            projectConfig.isCameraSubsystem = EditorGUILayout.Toggle("Camera Subsystem", projectConfig.isCameraSubsystem);
-            picoFeature.isCameraSubsystem = projectConfig.isCameraSubsystem;
             var displayFrequencyContent = new GUIContent();
             displayFrequencyContent.text = "Display Refresh Rates";
             projectConfig.displayFrequency = (SystemDisplayFrequency)EditorGUILayout.EnumPopup(displayFrequencyContent, projectConfig.displayFrequency);
@@ -79,8 +78,12 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.LabelField("Note:  Set the system splash screen picture in PNG format.", firstLevelStyle);
             EditorGUILayout.EndVertical();
-
-
+            
+            var MRSafeguard = new GUIContent();
+            MRSafeguard.text = "MR Safeguard";
+            MRSafeguard.tooltip = "MR safety, if you choose this option, your application will adopt MR safety policies during runtime. If not selected, it will continue to use VR safety policies by default.";
+            projectConfig.MRSafeguard = EditorGUILayout.Toggle(MRSafeguard, projectConfig.MRSafeguard);
+            
             serializedObject.Update();
             if (GUI.changed)
             {

@@ -5,6 +5,10 @@ using System.Text;
 using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEngine;
+
+#if AR_FOUNDATION
+using UnityEngine.XR.ARSubsystems;
+#endif
 using UnityEngine.XR.OpenXR;
 using UnityEngine.XR.OpenXR.Features;
 using Object = UnityEngine.Object;
@@ -21,7 +25,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         BuildTargetGroups = new[] { UnityEditor.BuildTargetGroup.Android },
         Company = "PICO",
         OpenxrExtensionStrings = extensionString,
-        Version = "0.0.1",
+        Version = "1.0.0",
         FeatureId = featureId)]
 #endif
     public class PassthroughFeature : OpenXRFeatureBase
@@ -34,7 +38,42 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         private static uint Size = 0;
         private static bool isInit = false;
         private static bool isPause = false;
+        private static int _enableVideoSeeThrough=-1;
+        public static event Action<bool> EnableVideoSeeThroughAction;
+        [HideInInspector]
+        public static bool EnableVideoSeeThrough
+        {
+            get => _enableVideoSeeThrough==1;
+            set
+            {
+                if (value)
+                {
+                    if (_enableVideoSeeThrough != 1)
+                    {
+                        _enableVideoSeeThrough = 1;
+                        EnableSeeThroughManual(value);
 
+                        if (EnableVideoSeeThroughAction != null)
+                        {
+                            EnableVideoSeeThroughAction(value);
+                        }
+                    }
+                }
+                else
+                {
+                    if (_enableVideoSeeThrough == 1)
+                    {
+                        _enableVideoSeeThrough = 0;
+                        EnableSeeThroughManual(value);
+
+                        if (EnableVideoSeeThroughAction != null)
+                        {
+                            EnableVideoSeeThroughAction(value);
+                        }
+                    }
+                }
+            }
+        }
         public override void Initialize(IntPtr intPtr)
         {
             isExtensionEnable = _isExtensionEnable;
@@ -376,8 +415,86 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         }
 #endif
         
-        
+#if AR_FOUNDATION
+        public bool isCameraSubsystem=true;
+        static List<XRCameraSubsystemDescriptor> s_CameraDescriptors = new List<XRCameraSubsystemDescriptor>();
+        protected override void OnSubsystemCreate()
+        {
+            base.OnSubsystemCreate();
+            if (isCameraSubsystem)
+            {
+                CreateSubsystem<XRCameraSubsystemDescriptor, XRCameraSubsystem>(
+                    s_CameraDescriptors,
+                    PICOCameraSubsystem.k_SubsystemId);
+            }
 
+        }
+        protected override void OnSubsystemStart()
+        {
+            if (isCameraSubsystem)
+            {
+                StartSubsystem<XRCameraSubsystem>();
+            }
+        }
+        protected override void OnSubsystemStop()
+        {
+            if (isCameraSubsystem)
+            {
+                StopSubsystem<XRCameraSubsystem>();
+            }
+        }
+        protected override void OnSubsystemDestroy()
+        {
+            if (isCameraSubsystem)
+            {
+                DestroySubsystem<XRCameraSubsystem>();
+            }
+        }
+      
+#endif
+        protected override void OnSessionStateChange(int oldState, int newState)
+        {
+            base.OnSessionStateChange(oldState, newState);
+            if (newState == 1)
+            {
+#if AR_FOUNDATION
+                if (isCameraSubsystem)
+                {
+                    StopSubsystem<XRCameraSubsystem>();
+                }else{
+                   if (_enableVideoSeeThrough!=-1)
+                   {
+                       EnableSeeThroughManual(false);
+                   }
+                }
+#else
+                if (_enableVideoSeeThrough!=-1)
+                {
+                    EnableSeeThroughManual(false);
+                }
+#endif
+            }
+            else if (newState == 5)
+            {
+#if AR_FOUNDATION
+                if (isCameraSubsystem)
+                {
+                    StartSubsystem<XRCameraSubsystem>();
+                }else{
+                   if (_enableVideoSeeThrough!=-1)
+                   {
+                       EnableSeeThroughManual(EnableVideoSeeThrough);
+                   }
+                }
+#else
+                if (_enableVideoSeeThrough!=-1)
+                {
+                    EnableSeeThroughManual(EnableVideoSeeThrough);
+                }
+               
+#endif
+            }
+        }
         private const string ExtLib = "openxr_pico";
 
         [DllImport(ExtLib, EntryPoint = "PICO_initialize_Passthrough", CallingConvention = CallingConvention.Cdecl)]

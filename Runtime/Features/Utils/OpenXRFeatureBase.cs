@@ -12,7 +12,7 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         protected static ulong xrInstance = 0ul;
         protected static ulong xrSession = 0ul;
         protected string extensionUrl = "";
-        public bool _isExtensionEnable = false;
+        protected bool _isExtensionEnable = false;
         
         protected override bool OnInstanceCreate(ulong instance)
         {

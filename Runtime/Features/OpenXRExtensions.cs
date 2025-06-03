@@ -1,7 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using AOT;
+using Unity.XR.PXR;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.XR;
+#if AR_FOUNDATION
+using UnityEngine.XR.ARSubsystems;
+#endif
 using UnityEngine.XR.OpenXR.Features;
 #if UNITY_EDITOR
 using UnityEditor.XR.OpenXR.Features;
@@ -36,7 +43,14 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         public const string featureId = "com.unity.openxr.pico.features";
         private static ulong xrInstance = 0ul;
         private static ulong xrSession = 0ul;
-        public static bool isPicoSupport = false;
+        public static event Action<ulong> SenseDataUpdated;
+        public static event Action SpatialAnchorDataUpdated;
+        public static event Action SceneAnchorDataUpdated;
+        
+        public static event Action<PxrEventSenseDataProviderStateChanged> SenseDataProviderStateChanged;
+        public static event Action<List<PxrSpatialMeshInfo>> SpatialMeshDataUpdated;
+        
+        static bool isCoroutineRunning = false;
         protected override bool OnInstanceCreate(ulong instance)
         {
             xrInstance = instance;
@@ -49,8 +63,10 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         {
             xrSession = xrSessionId;
             Initialize(xrGetInstanceProcAddr, xrInstance, xrSession);
+            Pxr_SetEventDataBufferCallBack(XrEventDataBufferFunction);
             setColorSpace((int)QualitySettings.activeColorSpace);
             base.OnSessionCreate(xrSessionId);
+        
         }
 
         /// <inheritdoc/>
@@ -199,7 +215,140 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
             getLocationHeight( ref height);
             return height;
         }
-       
+        
+        public static int GetControllerType()
+        {
+            int type = 0;
+            Pxr_GetControllerType(ref type);
+            return type;
+        }
+        
+        [MonoPInvokeCallback(typeof(XrEventDataBufferCallBack))]
+        static void XrEventDataBufferFunction(ref XrEventDataBuffer eventDB)
+        {
+            int status, action;
+            PLog.i($"XrEventDataBufferFunction eventType={eventDB.type}");
+            switch (eventDB.type)
+            {
+                case XrStructureType.XR_TYPE_EVENT_DATA_SENSE_DATA_PROVIDER_STATE_CHANGED:
+                {
+                    if (SenseDataProviderStateChanged != null)
+                    {
+                        PxrEventSenseDataProviderStateChanged data = new PxrEventSenseDataProviderStateChanged()
+                        {
+                            providerHandle = BitConverter.ToUInt64(eventDB.data, 0),
+                            newState = (PxrSenseDataProviderState)BitConverter.ToInt32(eventDB.data, 8),
+                        };
+                        SenseDataProviderStateChanged(data);
+                    }
+                    break;
+                }
+                case XrStructureType.XR_TYPE_EVENT_DATA_SENSE_DATA_UPDATED:
+                {
+                    ulong providerHandle = BitConverter.ToUInt64(eventDB.data, 0);
+                    PLog.i($"providerHandle ={providerHandle}");
+                    if (SenseDataUpdated != null)
+                    {
+                        SenseDataUpdated(providerHandle);
+                    }
+
+                    if (providerHandle == PXR_Plugin.MixedReality.UPxr_GetSenseDataProviderHandle(PxrSenseDataProviderType.SpatialAnchor))
+                    {
+                        if (SpatialAnchorDataUpdated != null)
+                        {
+                            SpatialAnchorDataUpdated();
+                        }
+                    }
+
+                    if (providerHandle == PXR_Plugin.MixedReality.UPxr_GetSenseDataProviderHandle(PxrSenseDataProviderType.SceneCapture))
+                    {
+                        if (SceneAnchorDataUpdated != null)
+                        {
+                            SceneAnchorDataUpdated();
+                        }
+                    }
+
+                    if (providerHandle == PXR_Plugin.MixedReality.UPxr_GetSpatialMeshProviderHandle())
+                    {
+                        if (!isCoroutineRunning)
+                        {
+                            QuerySpatialMeshAnchor();
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+
+        static async void QuerySpatialMeshAnchor()
+        {
+            isCoroutineRunning = true;
+            var task = await PXR_MixedReality.QueryMeshAnchorAsync();
+            isCoroutineRunning = false;
+            var (result, meshInfos) = task;
+            for (int i = 0; i < meshInfos.Count; i++)
+            {
+                switch (meshInfos[i].state)
+                {
+                    case MeshChangeState.Added:
+                    case MeshChangeState.Updated:
+                    {
+                        PXR_Plugin.MixedReality.UPxr_AddOrUpdateMesh(meshInfos[i]);
+                    }
+                        break;
+                    case MeshChangeState.Removed:
+                    {
+                        PXR_Plugin.MixedReality.UPxr_RemoveMesh(meshInfos[i].uuid);
+                    }
+                        break;
+                    case MeshChangeState.Unchanged:
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (result == PxrResult.SUCCESS)
+            {
+                SpatialMeshDataUpdated?.Invoke(meshInfos);
+            }
+        }
+#if AR_FOUNDATION
+        public  bool isSessionSubsystem=true;
+        private static List<XRSessionSubsystemDescriptor> sessionSubsystemDescriptors = new List<XRSessionSubsystemDescriptor>();
+        protected override void OnSubsystemCreate()
+        {
+            base.OnSubsystemCreate();
+            if (isSessionSubsystem)
+            {
+                CreateSubsystem<XRSessionSubsystemDescriptor, XRSessionSubsystem>(sessionSubsystemDescriptors, PICOSessionSubsystem.k_SubsystemId);
+            }
+        }
+        protected override void OnSubsystemStart()
+        {
+            if (isSessionSubsystem)
+            {
+                StartSubsystem<XRHumanBodySubsystem>();
+            }
+        }
+        protected override void OnSubsystemStop()
+        {
+            if (isSessionSubsystem)
+            {
+                StopSubsystem<XRHumanBodySubsystem>();
+            }
+        }
+        protected override void OnSubsystemDestroy()
+        {
+            if (isSessionSubsystem)
+            {
+                DestroySubsystem<XRHumanBodySubsystem>();
+            }
+        }
+#endif
+        
         const string extLib = "openxr_pico";
 
         [DllImport(extLib, EntryPoint = "PICO_Initialize", CallingConvention = CallingConvention.Cdecl)]
@@ -254,5 +403,9 @@ namespace Unity.XR.OpenXR.Features.PICOSupport
         private static extern XrResult getLocationHeight(ref float delaY);
         [DllImport(extLib, EntryPoint = "PICO_SetMarkMode", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetMarkMode();
+        [DllImport(extLib,  CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Pxr_GetControllerType(ref int type);
+        [DllImport(extLib, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void Pxr_SetEventDataBufferCallBack(XrEventDataBufferCallBack callback);
     }
 }

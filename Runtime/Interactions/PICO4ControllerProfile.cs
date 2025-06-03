@@ -179,6 +179,9 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
             /// </summary>
             [Preserve, InputControl(usage = "Haptic")]
             public HapticControl haptic { get; private set; }
+               
+            [Preserve, InputControl(usage = "BatteryLevel")]
+            public AxisControl batteryLevel { get; private set; }
 
             /// <summary>
             /// Internal call used to assign controls to the the correct element.
@@ -211,6 +214,7 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                 pointerRotation = GetChildControl<QuaternionControl>("pointerRotation");
 
                 haptic = GetChildControl<HapticControl>("haptic");
+                batteryLevel = GetChildControl<AxisControl>("BatteryLevel");
             }
         }
 
@@ -306,6 +310,8 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
         /// Constant for a haptic interaction binding '.../output/haptic' OpenXR Input Binding. Used by input subsystem to bind actions to physical inputs.
         /// </summary>
         public const string haptic = "/output/haptic";
+                
+        public const string batteryLevel = "/input/battery/value";
 
         private const string kDeviceLocalizedName = "PICO4 Touch Controller OpenXR";
 
@@ -683,6 +689,24 @@ namespace UnityEngine.XR.OpenXR.Features.Interactions
                             new ActionBinding()
                             {
                                 interactionPath = aim,
+                                interactionProfileName = profile,
+                            }
+                        }
+                    },
+                    new ActionConfig()
+                    {
+                        name = "batteryLevel",
+                        localizedName = "BatteryLevel",
+                        type = ActionType.Axis1D,
+                        usages = new List<string>()
+                        {
+                            "BatteryLevel"
+                        },
+                        bindings = new List<ActionBinding>()
+                        {
+                            new ActionBinding()
+                            {
+                                interactionPath = batteryLevel,
                                 interactionProfileName = profile,
                             }
                         }
