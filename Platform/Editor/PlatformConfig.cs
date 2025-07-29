@@ -277,7 +277,7 @@ namespace Pico.Platform.Editor
                 GUILayout.Space(5);
                 GUILayout.Label(new GUIContent(strBuildSettingText[(int) language], strBuildSettingHelpText[(int) language]));
 
-                GUIStyle style = "frameBox";
+                GUIStyle style = new GUIStyle("frameBox");
                 style.fixedWidth = frameWidth;
                 EditorGUILayout.BeginVertical(style);
 
